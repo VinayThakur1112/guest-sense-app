@@ -71,3 +71,4 @@ To create terrafrom resourse group
 
 To delete terrafrom delete_rg
 ./run.sh terraform delete_rg
+
