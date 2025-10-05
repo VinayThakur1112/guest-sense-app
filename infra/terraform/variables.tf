@@ -1,11 +1,21 @@
 variable "resource_group_name" {
-  description = "The name of the resource group to create"
+  description = "Name of the resource group"
   type        = string
-  default     = "rg-guestsense"
 }
 
 variable "location" {
-  description = "Azure region where the resource group will be created"
+  description = "Azure region to deploy resources"
   type        = string
   default     = "Central India"
+}
+
+variable "storage_account_name" {
+  description = "Name of the storage account (must be globally unique)"
+  type        = string
+}
+
+variable "container_name" {
+  description = "Name of the storage container"
+  type        = string
+  default     = "raw-data"
 }
