@@ -28,3 +28,22 @@ module "storage_account" {
   storage_account_name = var.storage_account_name
   container_name       = var.container_name
 }
+
+module "container_registry" {
+  source              = "./modules/container_registry"
+  resource_group_name = module.resource_group.resource_group_name
+  location            = var.location
+  acr_name            = var.acr_name
+
+  count = var.create_container_registry ? 1 : 0
+}
+
+module "kubernetes_cluster" {
+  source              = "./modules/kubernetes_cluster"
+  resource_group_name = module.resource_group.resource_group_name
+  location            = var.location
+  aks_name            = var.aks_name
+  acr_id              = module.acr.acr_id
+
+  count = var.create_kubernetes_cluster ? 1 : 0
+}

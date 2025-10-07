@@ -4,7 +4,6 @@ set -e  # exit immediately on error
 ACTION=$1
 SUBACTION=$2
 
-
 # ---- Helper Functions ---- #
 
 run_terraform() {
@@ -18,13 +17,20 @@ run_terraform() {
             echo "🧩 Planning Terraform..."
             terraform plan
             ;;
-        apply | create_rg)
+        apply)
             echo "🚀 Applying Terraform configuration..."
-            terraform apply -auto-approve
+            terraform apply -auto-approve \
+            -var="create_container_registry=true" \
+            -var="create_kubernetes_cluster=true"
             ;;
-        destroy | delete_rg)
+        destroy)
             echo "💣 Destroying Terraform resources..."
             terraform destroy -auto-approve
+            ;;
+        save_expense)
+            echo "💣 Destroying expensive services"
+            terraform apply -auto-approve -var="create_container_registry=false" \
+            -var="create_kubernetes_cluster=false"
             ;;
         *)
             echo "❌ Unknown Terraform action: $1"

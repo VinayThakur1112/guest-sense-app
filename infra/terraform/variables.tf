@@ -19,3 +19,15 @@ variable "container_name" {
   type        = string
   default     = "raw-data"
 }
+
+variable "create_container_registry" {
+  description = "Whether to create Azure Container Registry"
+  type        = bool
+  default     = false
+}
+
+variable "create_kubernetes_cluster" {
+  description = "Whether to create Azure Kubernetes Cluster"
+  type        = bool
+  default     = false
+}
