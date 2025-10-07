@@ -4,6 +4,7 @@ set -e  # exit immediately on error
 ACTION=$1
 SUBACTION=$2
 
+
 # ---- Helper Functions ---- #
 
 run_terraform() {
