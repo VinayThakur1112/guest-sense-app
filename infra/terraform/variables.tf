@@ -6,7 +6,7 @@ variable "resource_group_name" {
 variable "location" {
   description = "Azure region to deploy resources"
   type        = string
-  default     = "Central India"
+  # default     = "Central India"
 }
 
 variable "storage_account_name" {
@@ -20,14 +20,24 @@ variable "container_name" {
   default     = "raw-data"
 }
 
-variable "create_container_registry" {
-  description = "Whether to create Azure Container Registry"
-  type        = bool
-  default     = false
+variable "acr_name" {
+  description = "Azure Container Registry name"
+  type        = string
 }
 
-variable "create_kubernetes_cluster" {
-  description = "Whether to create Azure Kubernetes Cluster"
+variable "aks_name" {
+  description = "AKS cluster name"
+  type        = string
+}
+
+variable "create_aks" {
+  description = "Flag to create AKS"
   type        = bool
-  default     = false
+  default     = true
+}
+
+variable "create_acr" {
+  description = "Flag to create ACR"
+  type        = bool
+  default     = true
 }

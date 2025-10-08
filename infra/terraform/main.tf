@@ -1,49 +1,66 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 3.100.0"
-    }
-  }
+# terraform {
+#   required_providers {
+#     azurerm = {
+#       source  = "hashicorp/azurerm"
+#       version = "~> 3.100.0"
+#     }
+#   }
 
-  required_version = ">= 1.5.0"
-}
+#   required_version = ">= 1.5.0"
+# }
 
-provider "azurerm" {
-  features {}
-}
+# provider "azurerm" {
+#   features {}
+# }
 
 # Create Resource Group
-module "resource_group" {
-  source              = "./modules/resource_group"
-  resource_group_name = var.resource_group_name
-  location            = var.location
+resource "azurerm_resource_group" "rg" {
+  name     = var.resource_group_name
+  location = var.location
 }
 
 # Create Storage Account
-module "storage_account" {
-  source               = "./modules/storage_accounts"
-  resource_group_name  = module.resource_group.name
-  location             = module.resource_group.location
-  storage_account_name = var.storage_account_name
-  container_name       = var.container_name
+resource "azurerm_storage_account" "storage" {
+  name                     = var.storage_account_name
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = azurerm_resource_group.rg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  is_hns_enabled           = true
 }
 
-module "container_registry" {
-  source              = "./modules/container_registry"
-  resource_group_name = module.resource_group.resource_group_name
-  location            = var.location
-  acr_name            = var.acr_name
-
-  count = var.create_container_registry ? 1 : 0
+resource "azurerm_storage_container" "raw" {
+  name                  = var.container_name
+  storage_account_name  = azurerm_storage_account.storage.name
+  container_access_type = "private"
 }
 
-module "kubernetes_cluster" {
-  source              = "./modules/kubernetes_cluster"
-  resource_group_name = module.resource_group.resource_group_name
-  location            = var.location
-  aks_name            = var.aks_name
-  acr_id              = module.acr.acr_id
+# Container Registry (optional)
+resource "azurerm_container_registry" "acr" {
+  count               = var.create_acr ? 1 : 0
+  name                = var.acr_name
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  sku                 = "Basic"
+  admin_enabled       = true
+}
 
-  count = var.create_kubernetes_cluster ? 1 : 0
+# AKS Cluster (optional)
+resource "azurerm_kubernetes_cluster" "aks" {
+  count               = var.create_aks ? 1 : 0
+  name                = var.aks_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  dns_prefix          = "aks-demo"
+  kubernetes_version  = "1.32.7"
+
+  default_node_pool {
+    name       = "default"
+    node_count = 1
+    vm_size    = "Standard_B2s"
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
 }

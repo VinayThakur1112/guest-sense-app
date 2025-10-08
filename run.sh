@@ -19,9 +19,8 @@ run_terraform() {
             ;;
         apply)
             echo "🚀 Applying Terraform configuration..."
-            terraform apply -auto-approve \
-            -var="create_container_registry=true" \
-            -var="create_kubernetes_cluster=true"
+            terraform apply -auto-approve -var="create_acr=true" \
+            -var="create_aks=true"
             ;;
         destroy)
             echo "💣 Destroying Terraform resources..."
@@ -29,48 +28,14 @@ run_terraform() {
             ;;
         save_expense)
             echo "💣 Destroying expensive services"
-            terraform apply -auto-approve -var="create_container_registry=false" \
-            -var="create_kubernetes_cluster=false"
+            terraform apply -auto-approve -var="create_acr=false" \
+            -var="create_aks=false"
             ;;
         *)
             echo "❌ Unknown Terraform action: $1"
             ;;
     esac
     cd - >/dev/null
-}
-
-run_api() {
-    case $1 in
-        start)
-            echo "🌍 Starting Flask API..."
-            cd api
-            python3 app.py
-            ;;
-        stop)
-            echo "🛑 Stopping API... (use Ctrl+C if running in foreground)"
-            ;;
-        *)
-            echo "❌ Unknown API action: $1"
-            ;;
-    esac
-}
-
-run_model() {
-    case $1 in
-        train)
-            echo "🤖 Training ML model..."
-            cd model
-            python3 train_model.py
-            ;;
-        test)
-            echo "🧠 Testing model..."
-            cd model
-            python3 test_model.py
-            ;;
-        *)
-            echo "❌ Unknown model action: $1"
-            ;;
-    esac
 }
 
 # ---- Main Controller ---- #
