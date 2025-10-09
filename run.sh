@@ -22,9 +22,25 @@ run_terraform() {
             terraform apply -auto-approve -var="create_acr=true" \
             -var="create_aks=true"
             ;;
-        destroy)
+        destroy_all)
             echo "💣 Destroying Terraform resources..."
             terraform destroy -auto-approve
+            ;;
+        destroy_rg)
+            echo "💣 Destroying Terraform resources..."
+            terraform destroy -target=azurerm_resource_group.rg -auto-approve
+            ;;
+        destroy_storage)
+            echo "💣 Destroying Terraform resources..."
+            terraform destroy -target=azurerm_storage_account.storage -auto-approve
+            ;;
+        destroy_acr)
+            echo "💣 Destroying Terraform resources..."
+            terraform destroy -target=azurerm_container_registry.acr -auto-approve
+            ;;
+        destroy_aks)
+            echo "💣 Destroying Terraform resources..."
+            terraform destroy -target=azurerm_kubernetes_cluster.aks -auto-approve
             ;;
         save_expense)
             echo "💣 Destroying expensive services"
