@@ -1,75 +1,123 @@
-#!/bin/bash
-set -e  # exit immediately on error
+#!/bin/ksh
+# ==========================================================
+# Script: run.sh
+# Purpose: Orchestrate Azure infra scripts
+# ==========================================================
 
-ACTION=$1
-SUBACTION=$2
+set -e  # exit immediately if a command fails
 
-# ---- Helper Functions ---- #
+# ======== Configurable variables ========
+RESOURCE_GROUP="rg-guestsense"
+LOCATION="centralindia"
 
-run_terraform() {
-    cd infra/terraform
-    case $1 in
-        init)
-            echo "🔧 Initializing Terraform..."
-            terraform init
-            ;;
-        plan)
-            echo "🧩 Planning Terraform..."
-            terraform plan
-            ;;
-        apply)
-            echo "🚀 Applying Terraform configuration..."
-            terraform apply -auto-approve -var="create_acr=true" \
-            -var="create_aks=true"
-            ;;
-        destroy_all)
-            echo "💣 Destroying Terraform resources..."
-            terraform destroy -auto-approve
-            ;;
-        destroy_rg)
-            echo "💣 Destroying Terraform resources..."
-            terraform destroy -target=azurerm_resource_group.rg -auto-approve
-            ;;
-        destroy_storage)
-            echo "💣 Destroying Terraform resources..."
-            terraform destroy -target=azurerm_storage_account.storage -auto-approve
-            ;;
-        destroy_acr)
-            echo "💣 Destroying Terraform resources..."
-            terraform destroy -target=azurerm_container_registry.acr -auto-approve
-            ;;
-        destroy_aks)
-            echo "💣 Destroying Terraform resources..."
-            terraform destroy -target=azurerm_kubernetes_cluster.aks -auto-approve
-            ;;
-        save_expense)
-            echo "💣 Destroying expensive services"
-            terraform apply -auto-approve -var="create_acr=false" \
-            -var="create_aks=false"
-            ;;
-        *)
-            echo "❌ Unknown Terraform action: $1"
-            ;;
-    esac
-    cd - >/dev/null
+# ======== Function to call resource group script ========
+run_resource_group() {
+    action=$1
+    echo "🔹 Running resource group action: $action"
+    ./infra/resource_group.sh "$action" "$RESOURCE_GROUP" "$LOCATION"
 }
 
-# ---- Main Controller ---- #
+resoruce_group_service_type() {
+    # ======== Menu for user ========
+    echo "=============================================="
+    echo " Azure Infrastructure Automation "
+    echo "=============================================="
+    echo "1. Create Resource Group"
+    echo "2. Validate Resource Group"
+    echo "3. Delete Resource Group"
+    echo "4. Exit"
+    echo "=============================================="
+    echo -n "Enter your choice [1-4]: "
+    read choice
 
-case $ACTION in
-    terraform)
-        run_terraform $SUBACTION
+    case $choice in
+        1)
+            run_resource_group create
+            ;;
+        2)
+            run_resource_group validate
+            ;;
+        3)
+            run_resource_group delete
+            ;;
+        4)
+            echo "Exiting..."; exit 0
+            ;;
+        *)
+            echo "❌ Invalid choice"
+            ;;
+    esac
+}
+
+
+storage_account_service_type() {
+    # ======== Menu for user ========
+    echo "=============================================="
+    echo " Azure Infrastructure Automation "
+    echo "=============================================="
+    echo "1. Create Resource Group"
+    echo "2. Validate Resource Group"
+    echo "3. Delete Resource Group"
+    echo "4. Exit"
+    echo "=============================================="
+    echo -n "Enter your choice [1-4]: "
+    read choice
+
+    case $choice in
+        1)
+            run_resource_group create
+            ;;
+        2)
+            run_resource_group validate
+            ;;
+        3)
+            run_resource_group delete
+            ;;
+        4)
+            echo "Exiting..."; exit 0
+            ;;
+        *)
+            echo "❌ Invalid choice"
+            ;;
+    esac
+}
+
+
+
+# ======== Menu for user ========
+echo "=============================================="
+echo " Azure Infrastructure Automation. Please select the service "
+echo "=============================================="
+echo "1. Resource group"
+echo "2. Storage account"
+echo "3. Storage account containers"
+echo "4. Container registry"
+echo "5. Azure kubernetes"
+echo "=============================================="
+echo -n "Enter your choice [1-4]: "
+read choice
+
+case $choice in
+    1)
+        resoruce_group_service_type
         ;;
-    api)
-        run_api $SUBACTION
+    2)
+        storage_account_service_type
         ;;
-    model)
-        run_model $SUBACTION
+    3)
+        storage_account_container_type
+        ;;
+    4)
+        container_registry_service_type
+        ;;
+    5)
+        azure_kubernetes_service_type
+        ;;
+    6)
+        echo "Exiting..."; exit 0
         ;;
     *)
-        echo "Usage:"
-        echo "  ./run.sh terraform [init|plan|create_rg|delete_rg]"
-        echo "  ./run.sh api [start|stop]"
-        echo "  ./run.sh model [train|test]"
+        echo "❌ Invalid choice"
         ;;
 esac
+
