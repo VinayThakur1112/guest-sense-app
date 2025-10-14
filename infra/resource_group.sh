@@ -4,9 +4,9 @@
 # Script: manage_resource_group.ksh
 # Purpose: Create, validate, and delete Azure Resource Group
 # Usage:
-#   ./manage_resource_group.ksh create <rg_name> <location>
-#   ./manage_resource_group.ksh validate <rg_name>
-#   ./manage_resource_group.ksh delete <rg_name>
+#   ./resource_group.ksh create <rg_name> <location>
+#   ./resource_group.ksh validate <rg_name>
+#   ./resource_group.ksh delete <rg_name>
 # ==========================================================
 
 # Exit if any command fails
@@ -29,6 +29,7 @@ create_rg() {
 # Function to validate resource group existence
 validate_rg() {
     rg_name=$1
+    echo $rg_name
 
     if [ -z "$rg_name" ]; then
         echo "❌ Usage: $0 validate <resource_group_name>"
