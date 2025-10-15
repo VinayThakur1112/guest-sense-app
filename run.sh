@@ -16,6 +16,7 @@ CLUSTER_NAME="clusterguestsense"
 NODE_COUNT="2"
 NODE_SIZE="Standard_DS2_v2"
 K8S_VERSION="1.32.7"
+DATABRICKS_WS="dbw-guestsense"
 
 
 
@@ -220,6 +221,46 @@ azure_kubernetes_cluster_type() {
 }
 
 
+run_databricks_cluster() {
+    action=$1
+    echo "🔹 Running databricks action: $action"
+    ./infra/databricks_workspace.sh "$action" "$RESOURCE_GROUP" "$DATABRICKS_WS" \
+    "$LOCATION"
+}
+
+azure_databricks_service_type() {
+    # ======== Menu for user ========
+    echo "=============================================="
+    echo " Azure Infrastructure Automation "
+    echo "=============================================="
+    echo "1. Create databricks cluster"
+    echo "2. Validate databricsk cluster"
+    echo "3. Delete databricks cluster"
+    echo "4. Exit"
+    echo "=============================================="
+    echo -n "Enter your choice [1-4]: "
+    read choice
+
+    case $choice in
+        1)
+            run_databricks_cluster create
+            ;;
+        2)
+            run_databricks_cluster validate
+            ;;
+        3)
+            run_databricks_cluster delete
+            ;;
+        4)
+            echo "Exiting..."; exit 0
+            ;;
+        *)
+            echo "❌ Invalid choice"
+            ;;
+    esac
+}
+
+
 # ======== Menu for user ========
 echo "=============================================="
 echo " Azure Infrastructure Automation. Please select the service "
@@ -229,6 +270,7 @@ echo "2. Storage account"
 echo "3. Storage account containers"
 echo "4. Container registry"
 echo "5. Azure kubernetes"
+echo "6. Azure Databricks"
 echo "=============================================="
 read choice
 
@@ -249,6 +291,9 @@ case $choice in
         azure_kubernetes_cluster_type
         ;;
     6)
+        azure_databricks_service_type
+        ;;
+    7)
         echo "Exiting..."; exit 0
         ;;
     *)
