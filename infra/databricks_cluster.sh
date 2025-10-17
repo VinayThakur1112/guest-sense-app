@@ -73,8 +73,17 @@ get_workspace_url() {
     rm infra/temp.txt
     echo "✅ temp.txt file is deleted."
     
-    WORKSPACE_URL_VAR=https://$WORKSPACE_URL_VAR
+    WORKSPACE_URL_VAR=https://$WORKSPACE_VAR
     echo "✅ Workspace url formed"
+
+    export DATABRICKS_HOST=$WORKSPACE_URL_VAR
+    echo "✅ DATABRICKS_HOST exported"
+    echo $DATABRICKS_HOST
+
+    export DATABRICKS_TOKEN=$DATABRICKS_PAT
+    echo "✅ DATABRICKS_TOKEN exported"
+    echo $DATABRICKS_TOKEN
+
 }
 
 create_cluster(){
